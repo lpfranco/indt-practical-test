@@ -16,15 +16,11 @@ Servem como teste prático para criação e gestão de propostas e contratos.
 /
 ├── ContractService/
 │   └── src/ContractService/        # Projeto .NET do serviço de contrato
-│       ├── ContractService.sln
-│       └── Dockerfile
-│
+│             
 ├── ProposalService/
-│   └── src/ProposalService/        # Projeto .NET do serviço de proposta
-│       ├── ProposalService.sln
-│       └── Dockerfile
+│   └── src/ProposalService/        # Projeto .NET do serviço de proposta            
 │
-└── docker-compose.yml               # Orquestração de todos os contêineres
+└── docker-compose.yml              # Orquestração de todos os contêineres
 ```
 
 ---
@@ -76,21 +72,6 @@ dotnet run
 
 ---
 
-## ⚙️ Configuração de ambiente
-
-As variáveis de ambiente padrão no `docker-compose.yml` são:
-
-```env
-RABBITMQ_HOST=rabbitmq
-RABBITMQ_USER=guest
-RABBITMQ_PASS=guest
-ASPNETCORE_ENVIRONMENT=Development
-```
-
-> Pode criar um arquivo `.env` na raiz do repositório para customizar essas variáveis.
-
----
-
 ## 📦 Build das imagens Docker
 
 Para apenas construir as imagens:
@@ -104,20 +85,6 @@ Para um serviço específico:
 ```bash
 docker-compose build proposal-service-api
 docker-compose build contract-service-api
-```
-
----
-
-## 🧪 Testes e Cobertura
-
-Para rodar testes unitários:
-
-```bash
-cd ProposalService/src/ProposalService.Tests
-dotnet test --logger "console;verbosity=detailed"
-
-cd ContractService/src/ContractService.Tests
-dotnet test --logger "console;verbosity=detailed"
 ```
 
 ---
