@@ -1,0 +1,10 @@
+# C# / .NET
+bin/
+obj/
+*.user
+*.vs/
+*.suo
+*.vscode/
+
+# Docker
+*.log

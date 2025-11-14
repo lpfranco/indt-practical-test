@@ -1,0 +1,6 @@
+@ProposalService.API_HostAddress = http://localhost:5028
+
+GET {{ProposalService.API_HostAddress}}/swagger/
+Accept: application/json
+
+###
