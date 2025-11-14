@@ -6,6 +6,7 @@ COPY ./ProposalService.API/*.csproj ./ProposalService.API/
 COPY ./ProposalService.Domain/*.csproj ./ProposalService.Domain/
 COPY ./ProposalService.Application/*.csproj ./ProposalService.Application/
 COPY ./ProposalService.Infrastructure/*.csproj ./ProposalService.Infrastructure/
+COPY ./ProposalService.Test/*.csproj ./ProposalService.Test/
 
 RUN dotnet restore ProposalService.sln
 
@@ -13,6 +14,7 @@ COPY ./ProposalService.API ./ProposalService.API
 COPY ./ProposalService.Application ./ProposalService.Application
 COPY ./ProposalService.Domain ./ProposalService.Domain
 COPY ./ProposalService.Infrastructure ./ProposalService.Infrastructure
+COPY ./ProposalService.Test ./ProposalService.Test
 
 WORKDIR /app/ProposalService.API
 RUN dotnet publish -c Release -o out
