@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models; // <-- Correto para OpenApiInfo
 using ProposalService.API.Filters;
 using ProposalService.Application.Behaviors;
 using ProposalService.Application.Commands;
@@ -16,20 +16,37 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ------------------------------------------------------------
+// Controllers + Filters
+// ------------------------------------------------------------
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<GlobalExceptionFilter>();
 });
 
+// MVC / Swagger
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Proposal API",
+        Version = "v1",
+        Description = "Proposal API - Indt."
+    });
+});
 
-builder.Services.AddDbContext<ProposalDbContext>(opt => opt.UseInMemoryDatabase("ProposalDb"));
+// ------------------------------------------------------------
+// Database
+// ------------------------------------------------------------
+builder.Services.AddDbContext<ProposalDbContext>(opt =>
+    opt.UseInMemoryDatabase("ProposalDb"));
 
 builder.Services.AddScoped<IProposalRepository, ProposalRepository>();
 
-
-//rabbit
-// Configurações opcionais vindas do appsettings.json ou variáveis de ambiente
+// ------------------------------------------------------------
+// RabbitMQ
+// ------------------------------------------------------------
 var rabbitHost = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? "rabbitmq";
 var rabbitUser = builder.Configuration.GetValue<string>("RabbitMQ:UserName") ?? "guest";
 var rabbitPass = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? "guest";
@@ -42,41 +59,40 @@ builder.Services.AddSingleton<IConnection>(_ =>
         UserName = rabbitUser,
         Password = rabbitPass
     };
+
     return factory.CreateConnection();
 });
 
 builder.Services.AddScoped<IEventPublisher, RabbitMqEventPublisher>();
-//------------------------------------------------------------------------------
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(80); 
-});
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProposalHandler).Assembly));
+// ------------------------------------------------------------
+// MediatR + Validation
+// ------------------------------------------------------------
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateProposalHandler).Assembly));
+
 builder.Services.AddValidatorsFromAssembly(typeof(CreateProposalCommandValidator).Assembly);
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// ------------------------------------------------------------
+// Web Host
+// ------------------------------------------------------------
+builder.WebHost.ConfigureKestrel(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Proposal API",
-        Version = "v1",
-        Description = "Proposal API - Indt."
-    });
+    options.ListenAnyIP(80);
 });
 
+// ------------------------------------------------------------
+// App
+// ------------------------------------------------------------
 var app = builder.Build();
-
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Proposal API DEV");
 });
-
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
