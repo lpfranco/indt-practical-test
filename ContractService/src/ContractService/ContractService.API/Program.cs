@@ -8,20 +8,26 @@ using ContractService.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models; // <-- Correto para OpenApiInfo
 using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ContractDbContext>(opt => opt.UseInMemoryDatabase("ContractDb"));
+// ------------------------------------------------------------
+// Database
+// ------------------------------------------------------------
+builder.Services.AddDbContext<ContractDbContext>(opt =>
+    opt.UseInMemoryDatabase("ContractDb"));
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateContractHandler).Assembly));
-builder.Services.AddValidatorsFromAssembly(typeof(CreateContractValidator).Assembly);
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
+// ------------------------------------------------------------
+// Repositories / Cache
+// ------------------------------------------------------------
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
 builder.Services.AddSingleton<IProposalStatusCacheRepository, ProposalStatusCacheRepository>();
 
+// ------------------------------------------------------------
+// RabbitMQ
+// ------------------------------------------------------------
 var rabbitHost = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? "rabbitmq";
 var rabbitUser = builder.Configuration.GetValue<string>("RabbitMQ:UserName") ?? "guest";
 var rabbitPass = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? "guest";
@@ -39,14 +45,22 @@ builder.Services.AddSingleton<IConnection>(_ =>
     return factory.CreateConnection();
 });
 
-
+// Hosted consumer
 builder.Services.AddHostedService<ProposalStatusChangedConsumer>();
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(80);
-});
+// ------------------------------------------------------------
+// MediatR + Validation
+// ------------------------------------------------------------
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateContractHandler).Assembly));
 
+builder.Services.AddValidatorsFromAssembly(typeof(CreateContractValidator).Assembly);
+
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+// ------------------------------------------------------------
+// Controllers + Swagger
+// ------------------------------------------------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -59,8 +73,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-var app = builder.Build();
+// ------------------------------------------------------------
+// Web Host
+// ------------------------------------------------------------
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80);
+});
 
+// ------------------------------------------------------------
+// App Pipeline
+// ------------------------------------------------------------
+var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -71,4 +95,5 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
