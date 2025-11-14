@@ -8,7 +8,7 @@ using ContractService.Infrastructure.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // <-- Correto para OpenApiInfo
+using Microsoft.OpenApi;
 using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);

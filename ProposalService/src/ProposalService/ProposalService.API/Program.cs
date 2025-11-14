@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // <-- Correto para OpenApiInfo
+using Microsoft.OpenApi;
 using ProposalService.API.Filters;
 using ProposalService.Application.Behaviors;
 using ProposalService.Application.Commands;
