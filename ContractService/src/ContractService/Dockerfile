@@ -6,6 +6,7 @@ COPY ./ContractService.API/*.csproj ./ContractService.API/
 COPY ./ContractService.Domain/*.csproj ./ContractService.Domain/
 COPY ./ContractService.Application/*.csproj ./ContractService.Application/
 COPY ./ContractService.Infrastructure/*.csproj ./ContractService.Infrastructure/
+COPY ./ContractService.Test/*.csproj ./ContractService.Test/
 
 RUN dotnet restore ContractService.sln
 
@@ -13,6 +14,7 @@ COPY ./ContractService.API ./ContractService.API
 COPY ./ContractService.Application ./ContractService.Application
 COPY ./ContractService.Domain ./ContractService.Domain
 COPY ./ContractService.Infrastructure ./ContractService.Infrastructure
+COPY ./ContractService.Test ./ContractService.Test
 
 WORKDIR /app/ContractService.API
 RUN dotnet publish -c Release -o out
